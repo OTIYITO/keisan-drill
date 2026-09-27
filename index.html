@@ -1,0 +1,1041 @@
+<!DOCTYPE html>  
+<html lang="ja">  
+  
+<head>  
+<meta charset="UTF-8">  
+  
+<meta name="viewport"  
+      content="width=device-width,  
+               initial-scale=1.0,  
+               maximum-scale=1.0,  
+               user-scalable=no">  
+  
+
+<meta name="theme-color" content="#f4f7fb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="計算ドリル">
+<meta name="format-detection" content="telephone=no">
+
+<title>計算ドリル</title>  
+  
+<style>  
+  
+* {  
+    box-sizing: border-box;  
+}
+
+html {
+    min-height: 100%;
+    background: #f4f7fb;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-top: env(safe-area-inset-top);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+}
+
+button, select {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}
+  
+  
+body {  
+    margin: 0;  
+    background: #f4f7fb;  
+  
+    font-family:  
+        -apple-system,  
+        BlinkMacSystemFont,  
+        "Hiragino Sans",  
+        "Yu Gothic",  
+        sans-serif;  
+  
+    color: #333;  
+}  
+  
+.container {  
+    max-width: 600px;  
+    margin: auto;  
+  
+    padding: 25px 20px 40px;  
+  
+    text-align: center;  
+}  
+  
+h1 {  
+    font-size: 32px;  
+    margin: 10px 0 25px;  
+}  
+  
+  
+/* =========================  
+   最初の設定画面  
+========================= */  
+  
+.settings {  
+  
+    background: white;  
+  
+    border-radius: 22px;  
+  
+    padding: 25px 20px;  
+  
+    box-shadow:  
+        0 3px 10px rgba(0,0,0,0.08);  
+}  
+  
+  
+.settings h2 {  
+    margin-top: 0;  
+    font-size: 24px;  
+}  
+  
+  
+/* 計算種類 */  
+  
+.operation-buttons {  
+  
+    display: grid;  
+  
+    grid-template-columns:  
+        repeat(2, 1fr);  
+  
+    gap: 12px;  
+  
+    margin: 20px 0;  
+}  
+  
+  
+.operation-button {  
+  
+    height: 80px;  
+  
+    border: none;  
+  
+    border-radius: 18px;  
+  
+    background: #f0f3f8;  
+  
+    font-size: 28px;  
+  
+    font-weight: bold;  
+  
+    box-shadow:  
+        0 2px 6px rgba(0,0,0,0.08);  
+}  
+  
+  
+.operation-button.selected {  
+  
+    background: #4f7cff;  
+  
+    color: white;  
+  
+}  
+
+.special-operation-button {
+    grid-column: span 2;
+    height: 90px;
+    font-size: 24px;
+}
+
+.special-operation-button .example {
+    display: block;
+    margin-top: 4px;
+    font-size: 17px;
+    font-weight: normal;
+}
+
+.inline-blank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.35em;
+    height: 1.35em;
+    padding: 0 0.08em;
+    margin: 0 0.08em;
+    border: 3px solid #555;
+    border-radius: 8px;
+    vertical-align: 0.06em;
+    line-height: 1;
+}
+  
+  
+/* 問題数 */  
+  
+.question-setting {  
+  
+    margin-top: 25px;  
+  
+    font-size: 20px;  
+}  
+  
+  
+select {  
+  
+    font-size: 20px;  
+  
+    padding: 10px 15px;  
+  
+    margin-left: 10px;  
+  
+    border-radius: 10px;  
+  
+    border: 1px solid #ccc;  
+  
+    background: white;  
+}  
+  
+  
+/* スタート */  
+  
+.start-button {  
+  
+    margin-top: 25px;  
+  
+    padding: 14px 35px;  
+  
+    border: none;  
+  
+    border-radius: 15px;  
+  
+    background: #4f7cff;  
+  
+    color: white;  
+  
+    font-size: 22px;  
+  
+    font-weight: bold;  
+}  
+  
+  
+/* =========================  
+   問題画面  
+========================= */  
+  
+.question-area {  
+  
+    background: white;  
+  
+    border-radius: 22px;  
+  
+    padding: 25px 15px;  
+  
+    margin-bottom: 20px;  
+  
+    box-shadow:  
+        0 3px 10px rgba(0,0,0,0.08);  
+}  
+  
+  
+.progress {  
+  
+    color: #777;  
+  
+    font-size: 18px;  
+}  
+  
+  
+.question {  
+  
+    font-size: 52px;  
+  
+    font-weight: bold;  
+  
+    margin: 25px 0 15px;  
+}  
+  
+  
+.answer {  
+  
+    width: 220px;  
+  
+    height: 65px;  
+  
+    margin: auto;  
+  
+    border-bottom:  
+        3px solid #555;  
+  
+    font-size: 42px;  
+  
+    font-weight: bold;  
+}  
+  
+  
+.message {  
+  
+    min-height: 45px;  
+  
+    margin-top: 15px;  
+  
+    font-size: 22px;  
+  
+    font-weight: bold;  
+}  
+  
+  
+.correct {  
+    color: #28a45a;  
+}  
+  
+  
+.wrong {  
+    color: #e05252;  
+}  
+  
+  
+/* =========================  
+   数字キーパッド  
+========================= */  
+  
+.keypad {  
+  
+    max-width: 420px;  
+  
+    margin: auto;  
+  
+    display: grid;  
+  
+    grid-template-columns:  
+        repeat(3, 1fr);  
+  
+    gap: 12px;  
+}  
+  
+  
+.number-button {  
+  
+    height: 70px;  
+  
+    border: none;  
+  
+    border-radius: 15px;  
+  
+    background: white;  
+  
+    font-size: 30px;  
+  
+    font-weight: bold;  
+  
+    box-shadow:  
+        0 3px 8px rgba(0,0,0,0.12);  
+}  
+  
+  
+.number-button:active {  
+  
+    transform: scale(0.95);  
+  
+    background: #e8edf5;  
+}  
+  
+  
+.delete-button {  
+  
+    background: #ddd;  
+}  
+  
+  
+.answer-button {  
+  
+    grid-column: span 2;  
+  
+    background: #4f7cff;  
+  
+    color: white;  
+}  
+  
+  
+.next-button {  
+  
+    margin-top: 20px;  
+  
+    padding: 14px 30px;  
+  
+    border: none;  
+  
+    border-radius: 15px;  
+  
+    background: #55b878;  
+  
+    color: white;  
+  
+    font-size: 22px;  
+  
+    font-weight: bold;  
+}  
+  
+  
+/* =========================  
+   結果画面  
+========================= */  
+  
+.result {  
+  
+    background: white;  
+  
+    border-radius: 22px;  
+  
+    padding: 35px 20px;  
+  
+    box-shadow:  
+        0 3px 10px rgba(0,0,0,0.08);  
+}  
+  
+  
+.result-score {  
+  
+    font-size: 40px;  
+  
+    font-weight: bold;  
+  
+    margin: 20px;  
+}  
+  
+  
+.hidden {  
+    display: none;  
+}  
+  
+</style>  
+  
+</head>  
+  
+  
+<body>  
+  
+  
+<div class="container">  
+  
+  
+<h1>✏️ 計算ドリル</h1>  
+  
+  
+<!-- ==================================================  
+     最初の設定画面  
+================================================== -->  
+  
+<div  
+    id="settings"  
+    class="settings">  
+  
+  
+    <h2>  
+        どの計算をする？  
+    </h2>  
+  
+  
+    <!-- 計算種類 -->  
+  
+    <div class="operation-buttons">  
+  
+  
+        <button type="button"  
+            class="operation-button selected"  
+            id="addButton"  
+            onclick="selectOperation('+')">  
+  
+            ＋  
+  
+        </button>  
+  
+  
+        <button type="button"  
+            class="operation-button"  
+            id="subtractButton"  
+            onclick="selectOperation('-')">  
+  
+            −  
+  
+        </button>  
+  
+  
+        <button type="button"  
+            class="operation-button"  
+            id="multiplyButton"  
+            onclick="selectOperation('×')">  
+  
+            ×  
+  
+        </button>  
+  
+  
+        <button type="button"  
+            class="operation-button"  
+            id="divideButton"  
+            onclick="selectOperation('÷')">  
+  
+            ÷  
+  
+        </button>  
+
+        <button type="button"
+            class="operation-button special-operation-button"
+            id="makeTenButton"
+            onclick="selectOperation('make10')">
+
+            10をつくる
+            <span class="example">4 ＋ □ ＝ 10</span>
+
+        </button>
+  
+  
+    </div>  
+  
+  
+    <!-- 問題数 -->  
+  
+    <div class="question-setting">  
+  
+        何問やる？  
+  
+        <select id="questionCount">  
+  
+            <option value="5">  
+                5問  
+            </option>  
+  
+            <option value="10" selected>  
+                10問  
+            </option>  
+  
+            <option value="20">  
+                20問  
+            </option>  
+  
+            <option value="30">  
+                30問  
+            </option>  
+  
+            <option value="50">  
+                50問  
+            </option>  
+  
+        </select>  
+  
+    </div>  
+  
+  
+    <!-- スタート -->  
+  
+    <button type="button"  
+        class="start-button"  
+        onclick="startGame()">  
+  
+        スタート！  
+  
+    </button>  
+  
+  
+</div>  
+  
+  
+<!-- ==================================================  
+     問題画面  
+================================================== -->  
+  
+<div  
+    id="game"  
+    class="hidden">  
+  
+  
+    <div class="question-area">  
+  
+  
+        <div  
+            id="progress"  
+            class="progress">  
+  
+            1 / 10 問  
+  
+        </div>  
+  
+  
+        <div  
+            id="question"  
+            class="question">  
+  
+            3 ＋ 4  
+  
+        </div>  
+  
+  
+        <div  
+            id="answer"  
+            class="answer">  
+        </div>  
+  
+  
+        <div  
+            id="message"  
+            class="message">  
+        </div>  
+  
+  
+    </div>  
+  
+  
+    <!-- 数字ボタン -->  
+  
+    <div class="keypad">  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(1)">  
+            1  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(2)">  
+            2  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(3)">  
+            3  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(4)">  
+            4  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(5)">  
+            5  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(6)">  
+            6  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(7)">  
+            7  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(8)">  
+            8  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(9)">  
+            9  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button delete-button"  
+            onclick="deleteNumber()">  
+  
+            ⌫  
+  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button"  
+            onclick="inputNumber(0)">  
+  
+            0  
+  
+        </button>  
+  
+  
+        <button type="button"  
+            class="number-button answer-button"  
+            onclick="checkAnswer()">  
+  
+            答える！  
+  
+        </button>  
+  
+  
+    </div>  
+  
+  
+    <button type="button"  
+        id="nextButton"  
+        class="next-button hidden"  
+        onclick="nextQuestion()">  
+  
+        次の問題 →  
+  
+    </button>  
+  
+  
+</div>  
+  
+  
+<!-- ==================================================  
+     結果画面  
+================================================== -->  
+  
+<div  
+    id="result"  
+    class="result hidden">  
+  
+  
+    <h2>  
+        🎉 おつかれさま！  
+    </h2>  
+  
+  
+    <div  
+        id="resultScore"  
+        class="result-score">  
+    </div>  
+  
+  
+    <div  
+        id="resultMessage">  
+    </div>  
+  
+  
+    <button type="button"  
+        class="start-button"  
+        onclick="backToSettings()">  
+  
+        もう一度やる  
+  
+    </button>  
+  
+  
+</div>  
+  
+  
+</div>  
+  
+  
+<script>
+
+// GitHub Pages / iPhone / iPad対応版。外部ライブラリ不要。
+"use strict";
+
+/* ==================================================
+   ゲームの変数
+================================================== */
+let selectedOperation = "+";
+let totalQuestions = 10;
+let currentQuestion = 0;
+let correctCount = 0;
+let number1 = 0;
+let number2 = 0;
+let correctAnswer = 0;
+let userAnswer = "";
+let answered = false;
+let makeTenQuestions = [];
+
+/* ==================================================
+   共通処理
+================================================== */
+function $(id) {
+    return document.getElementById(id);
+}
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function shuffle(array) {
+    const result = array.slice();
+    for (let i = result.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = result[i];
+        result[i] = result[j];
+        result[j] = temp;
+    }
+    return result;
+}
+
+/*
+   「10をつくる」では1～9を一巡してから次のセットへ進む。
+   これにより，ランダム抽選だけの場合より組み合わせを均等に練習できる。
+*/
+function prepareMakeTenQuestions(count) {
+    const questions = [];
+    const base = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+    while (questions.length < count) {
+        const block = shuffle(base);
+        for (let i = 0; i < block.length && questions.length < count; i += 1) {
+            questions.push(block[i]);
+        }
+    }
+
+    return questions;
+}
+
+/* ==================================================
+   計算種類を選択
+================================================== */
+function selectOperation(operation) {
+    selectedOperation = operation;
+
+    const buttonMap = {
+        "+": "addButton",
+        "-": "subtractButton",
+        "×": "multiplyButton",
+        "÷": "divideButton",
+        "make10": "makeTenButton"
+    };
+
+    document.querySelectorAll(".operation-button").forEach(function(button) {
+        button.classList.remove("selected");
+    });
+
+    const selectedButton = $(buttonMap[operation]);
+    if (selectedButton) {
+        selectedButton.classList.add("selected");
+    }
+}
+
+/* ==================================================
+   ゲーム開始
+================================================== */
+function startGame() {
+    const count = parseInt($("questionCount").value, 10);
+    totalQuestions = Number.isFinite(count) ? count : 10;
+    currentQuestion = 1;
+    correctCount = 0;
+
+    if (selectedOperation === "make10") {
+        makeTenQuestions = prepareMakeTenQuestions(totalQuestions);
+    } else {
+        makeTenQuestions = [];
+    }
+
+    $("settings").classList.add("hidden");
+    $("result").classList.add("hidden");
+    $("game").classList.remove("hidden");
+
+    makeQuestion();
+}
+
+/* ==================================================
+   問題作成
+================================================== */
+function makeQuestion() {
+    userAnswer = "";
+    answered = false;
+
+    $("answer").textContent = "";
+    $("message").textContent = "";
+    $("message").className = "message";
+    $("nextButton").classList.add("hidden");
+    $("nextButton").textContent = "次の問題 →";
+    $("progress").textContent = currentQuestion + " / " + totalQuestions + " 問";
+
+    switch (selectedOperation) {
+        case "+":
+            number1 = randomInt(1, 9);
+            number2 = randomInt(1, 9);
+            correctAnswer = number1 + number2;
+            break;
+
+        case "-":
+            number1 = randomInt(2, 18);
+            number2 = randomInt(1, number1);
+            correctAnswer = number1 - number2;
+            break;
+
+        case "×":
+            number1 = randomInt(1, 9);
+            number2 = randomInt(1, 9);
+            correctAnswer = number1 * number2;
+            break;
+
+        case "÷": {
+            const divisor = randomInt(1, 9);
+            const quotient = randomInt(1, 9);
+            number1 = divisor * quotient;
+            number2 = divisor;
+            correctAnswer = quotient;
+            break;
+        }
+
+        case "make10":
+            number1 = makeTenQuestions[currentQuestion - 1];
+            number2 = 10 - number1;
+            correctAnswer = number2;
+            break;
+
+        default:
+            selectedOperation = "+";
+            number1 = randomInt(1, 9);
+            number2 = randomInt(1, 9);
+            correctAnswer = number1 + number2;
+    }
+
+    if (selectedOperation === "make10") {
+        $("answer").classList.add("hidden");
+        $("question").innerHTML =
+            number1 + " ＋ <span id=\"inlineAnswer\" class=\"inline-blank\">□</span> ＝ 10";
+    } else {
+        $("answer").classList.remove("hidden");
+        const displayOperator = selectedOperation === "-" ? "−" : selectedOperation;
+        $("question").textContent = number1 + " " + displayOperator + " " + number2;
+    }
+}
+
+/* ==================================================
+   入力表示
+================================================== */
+function updateAnswerDisplay() {
+    if (selectedOperation === "make10") {
+        const inlineAnswer = $("inlineAnswer");
+        if (inlineAnswer) {
+            inlineAnswer.textContent = userAnswer === "" ? "□" : userAnswer;
+        }
+    } else {
+        $("answer").textContent = userAnswer;
+    }
+}
+
+/* ==================================================
+   数字入力
+================================================== */
+function inputNumber(number) {
+    if (answered) return;
+
+    // 通常問題は最大4桁。「10をつくる」は答えが1桁なので1桁だけ入力する。
+    const maxLength = selectedOperation === "make10" ? 1 : 4;
+    if (userAnswer.length >= maxLength) return;
+
+    userAnswer += String(number);
+    updateAnswerDisplay();
+}
+
+function deleteNumber() {
+    if (answered) return;
+
+    userAnswer = userAnswer.slice(0, -1);
+    updateAnswerDisplay();
+}
+
+/* ==================================================
+   答え合わせ
+================================================== */
+function checkAnswer() {
+    if (answered) return;
+
+    if (userAnswer === "") {
+        $("message").textContent = "数字を入力してね";
+        $("message").className = "message wrong";
+        return;
+    }
+
+    answered = true;
+    const numericAnswer = Number(userAnswer);
+
+    if (numericAnswer === correctAnswer) {
+        correctCount += 1;
+        $("message").textContent = "⭕ 正解！";
+        $("message").className = "message correct";
+    } else {
+        $("message").textContent = "❌ 正解は " + correctAnswer + " だよ";
+        $("message").className = "message wrong";
+    }
+
+    $("nextButton").classList.remove("hidden");
+    if (currentQuestion >= totalQuestions) {
+        $("nextButton").textContent = "結果を見る →";
+    }
+}
+
+/* ==================================================
+   次の問題／結果表示
+================================================== */
+function nextQuestion() {
+    if (!answered) return;
+
+    if (currentQuestion >= totalQuestions) {
+        showResult();
+        return;
+    }
+
+    currentQuestion += 1;
+    makeQuestion();
+}
+
+function showResult() {
+    $("game").classList.add("hidden");
+    $("result").classList.remove("hidden");
+
+    $("resultScore").textContent = correctCount + " / " + totalQuestions + " 問 正解";
+
+    const rate = totalQuestions > 0 ? correctCount / totalQuestions : 0;
+    let message = "もう一度挑戦してみよう！";
+    if (rate === 1) {
+        message = "全問正解！ よくできました！";
+    } else if (rate >= 0.8) {
+        message = "あと少しで全問正解！";
+    } else if (rate >= 0.5) {
+        message = "よく頑張りました！";
+    }
+    $("resultMessage").textContent = message;
+}
+
+function backToSettings() {
+    $("result").classList.add("hidden");
+    $("game").classList.add("hidden");
+    $("settings").classList.remove("hidden");
+}
+
+/* ==================================================
+   キーボード操作にも対応
+================================================== */
+document.addEventListener("keydown", function(event) {
+    if ($("game").classList.contains("hidden")) return;
+
+    if (/^[0-9]$/.test(event.key)) {
+        inputNumber(Number(event.key));
+    } else if (event.key === "Backspace" || event.key === "Delete") {
+        event.preventDefault();
+        deleteNumber();
+    } else if (event.key === "Enter") {
+        event.preventDefault();
+        if (answered) {
+            nextQuestion();
+        } else {
+            checkAnswer();
+        }
+    }
+});
+</script>
+
+</body>
+</html>
