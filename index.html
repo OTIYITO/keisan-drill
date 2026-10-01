@@ -582,6 +582,107 @@ select {
     margin: clamp(12px, 3dvh, 20px);
 }
 
+.target-setting {
+    margin: clamp(8px, 1.8dvh, 16px) auto 0;
+    padding: clamp(10px, 2dvh, 16px);
+    border-radius: 14px;
+    background: #f5f7fb;
+    font-size: clamp(16px, 2.7dvh, 20px);
+    font-weight: bold;
+}
+
+.target-number-input {
+    width: min(34vw, 130px);
+    margin-left: 8px;
+    padding: clamp(7px, 1.3dvh, 10px) 8px;
+    border: 1px solid #c8ceda;
+    border-radius: 10px;
+    background: white;
+    font-size: clamp(18px, 3dvh, 22px);
+    font-weight: bold;
+    text-align: center;
+}
+
+.target-number-help {
+    margin-left: 6px;
+    color: #777;
+    font-size: clamp(12px, 2dvh, 14px);
+    font-weight: normal;
+}
+
+.option-setting {
+    margin: clamp(10px, 2dvh, 18px) auto 0;
+    font-size: clamp(15px, 2.5dvh, 18px);
+    color: #555;
+}
+
+.option-setting label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.option-setting input[type="checkbox"] {
+    width: 1.2em;
+    height: 1.2em;
+    margin: 0;
+    accent-color: #4f7cff;
+}
+
+.perfect-celebration {
+    width: min(100%, 460px);
+    margin: 0 auto clamp(12px, 2.5dvh, 20px);
+    padding: clamp(14px, 3dvh, 22px);
+    border: 3px solid #f2b705;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #fff8cf, #ffe4f2, #e7f0ff);
+    font-size: clamp(22px, 4.2dvh, 30px);
+    font-weight: 900;
+    line-height: 1.45;
+    white-space: pre-line;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    animation: celebrate-pop 0.55s ease-out both;
+}
+
+.result.perfect {
+    border: 4px solid #f2b705;
+    background: linear-gradient(180deg, #fffdf2 0%, #ffffff 45%);
+}
+
+.result.perfect .result-score {
+    font-size: clamp(36px, 7dvh, 48px);
+}
+
+@keyframes celebrate-pop {
+    0% { transform: scale(0.82); opacity: 0; }
+    65% { transform: scale(1.06); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.result-stats {
+    width: min(100%, 420px);
+    margin: 0 auto clamp(12px, 2.5dvh, 20px);
+    padding: clamp(12px, 2.5dvh, 18px);
+    border-radius: 14px;
+    background: #f5f7fb;
+    line-height: 1.65;
+}
+
+.result-date {
+    font-size: clamp(16px, 2.7dvh, 19px);
+    color: #555;
+}
+
+.result-time {
+    font-size: clamp(18px, 3.2dvh, 22px);
+    font-weight: bold;
+}
+
+.result-average {
+    font-size: clamp(17px, 3dvh, 21px);
+}
+
 /* 高さが小さい端末ではさらに縦方向を圧縮 */
 @media (max-height: 700px) {
     .container { padding-top: 6px; padding-bottom: 8px; }
@@ -676,16 +777,31 @@ select {
 
         <button type="button"
             class="operation-button special-operation-button"
-            id="makeTenButton"
-            onclick="selectOperation('make10')">
+            id="makeTargetButton"
+            onclick="selectOperation('makeTarget')">
 
-            10をつくる
-            <span class="example">4 ＋ □ ＝ 10</span>
+            数をつくる
+            <span class="example">4 ＋ ? ＝ 10 など</span>
 
         </button>
   
   
     </div>  
+
+    <div id="targetSetting" class="target-setting hidden">
+        <label for="targetNumber">つくる数</label>
+        <input
+            id="targetNumber"
+            class="target-number-input"
+            type="number"
+            inputmode="numeric"
+            min="2"
+            max="9999"
+            step="1"
+            value="10"
+            aria-describedby="targetNumberHelp">
+        <span id="targetNumberHelp" class="target-number-help">2〜9999</span>
+    </div>
   
   
     <!-- 問題数 -->  
@@ -718,7 +834,14 @@ select {
   
         </select>  
   
-    </div>  
+    </div>
+
+    <div class="option-setting">
+        <label for="showTimeOption">
+            <input id="showTimeOption" type="checkbox" checked>
+            結果に総時間・平均時間を表示する
+        </label>
+    </div>
   
   
     <!-- スタート -->  
@@ -909,15 +1032,23 @@ select {
     class="result hidden">  
   
   
-    <h2>  
-        🎉 おつかれさま！  
-    </h2>  
+    <h2 id="resultHeading">
+        🎉 おつかれさま！
+    </h2>
+
+    <div id="perfectCelebration" class="perfect-celebration hidden"></div>
   
   
     <div  
         id="resultScore"  
         class="result-score">  
     </div>  
+
+    <div id="resultStats" class="result-stats">
+        <div id="resultDate" class="result-date"></div>
+        <div id="resultTime" class="result-time"></div>
+        <div id="resultAverage" class="result-average"></div>
+    </div>
   
   
     <div  
@@ -957,7 +1088,9 @@ let number2 = 0;
 let correctAnswer = 0;
 let userAnswer = "";
 let answered = false;
-let makeTenQuestions = [];
+let targetQuestions = [];
+let targetNumber = 10;
+let gameStartTimeMs = 0;
 
 /* ==================================================
    共通処理
@@ -982,12 +1115,16 @@ function shuffle(array) {
 }
 
 /*
-   「10をつくる」では1～9を一巡してから次のセットへ進む。
-   これにより，ランダム抽選だけの場合より組み合わせを均等に練習できる。
+   「数をつくる」では，1～(目標値-1)を一巡してから次のセットへ進む。
+   同じ組み合わせばかりに偏らないよう，1セットごとに順序をシャッフルする。
 */
-function prepareMakeTenQuestions(count) {
+function prepareTargetQuestions(count, target) {
     const questions = [];
-    const base = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const base = [];
+
+    for (let value = 1; value < target; value += 1) {
+        base.push(value);
+    }
 
     while (questions.length < count) {
         const block = shuffle(base);
@@ -1010,7 +1147,7 @@ function selectOperation(operation) {
         "-": "subtractButton",
         "×": "multiplyButton",
         "÷": "divideButton",
-        "make10": "makeTenButton"
+        "makeTarget": "makeTargetButton"
     };
 
     document.querySelectorAll(".operation-button").forEach(function(button) {
@@ -1020,6 +1157,16 @@ function selectOperation(operation) {
     const selectedButton = $(buttonMap[operation]);
     if (selectedButton) {
         selectedButton.classList.add("selected");
+    }
+
+    if (operation === "makeTarget") {
+        $("targetSetting").classList.remove("hidden");
+        window.setTimeout(function() {
+            $("targetNumber").focus();
+            $("targetNumber").select();
+        }, 0);
+    } else {
+        $("targetSetting").classList.add("hidden");
     }
 }
 
@@ -1032,11 +1179,22 @@ function startGame() {
     currentQuestion = 1;
     correctCount = 0;
 
-    if (selectedOperation === "make10") {
-        makeTenQuestions = prepareMakeTenQuestions(totalQuestions);
+    if (selectedOperation === "makeTarget") {
+        const requestedTarget = parseInt($("targetNumber").value, 10);
+
+        if (!Number.isInteger(requestedTarget) || requestedTarget < 2 || requestedTarget > 9999) {
+            window.alert("つくる数は2〜9999の整数で入力してください。");
+            $("targetNumber").focus();
+            return;
+        }
+
+        targetNumber = requestedTarget;
+        targetQuestions = prepareTargetQuestions(totalQuestions, targetNumber);
     } else {
-        makeTenQuestions = [];
+        targetQuestions = [];
     }
+
+    gameStartTimeMs = Date.now();
 
     $("settings").classList.add("hidden");
     $("result").classList.add("hidden");
@@ -1088,9 +1246,9 @@ function makeQuestion() {
             break;
         }
 
-        case "make10":
-            number1 = makeTenQuestions[currentQuestion - 1];
-            number2 = 10 - number1;
+        case "makeTarget":
+            number1 = targetQuestions[currentQuestion - 1];
+            number2 = targetNumber - number1;
             correctAnswer = number2;
             break;
 
@@ -1101,10 +1259,10 @@ function makeQuestion() {
             correctAnswer = number1 + number2;
     }
 
-    if (selectedOperation === "make10") {
+    if (selectedOperation === "makeTarget") {
         $("answer").classList.add("hidden");
         $("question").innerHTML =
-            number1 + " ＋ <span id=\"inlineAnswer\" class=\"inline-blank\">□</span> ＝ 10";
+            number1 + " ＋ <span id=\"inlineAnswer\" class=\"inline-blank\">?</span> ＝ " + targetNumber;
     } else {
         $("answer").classList.remove("hidden");
         const displayOperator = selectedOperation === "-" ? "−" : selectedOperation;
@@ -1116,10 +1274,10 @@ function makeQuestion() {
    入力表示
 ================================================== */
 function updateAnswerDisplay() {
-    if (selectedOperation === "make10") {
+    if (selectedOperation === "makeTarget") {
         const inlineAnswer = $("inlineAnswer");
         if (inlineAnswer) {
-            inlineAnswer.textContent = userAnswer === "" ? "□" : userAnswer;
+            inlineAnswer.textContent = userAnswer === "" ? "?" : userAnswer;
         }
     } else {
         $("answer").textContent = userAnswer;
@@ -1132,8 +1290,10 @@ function updateAnswerDisplay() {
 function inputNumber(number) {
     if (answered) return;
 
-    // 通常問題は最大4桁。「10をつくる」は答えが1桁なので1桁だけ入力する。
-    const maxLength = selectedOperation === "make10" ? 1 : 4;
+    // 「数をつくる」は目標値に応じた桁数まで入力可能。通常問題は最大4桁。
+    const maxLength = selectedOperation === "makeTarget"
+        ? String(targetNumber).length
+        : 4;
     if (userAnswer.length >= maxLength) return;
 
     userAnswer += String(number);
@@ -1194,15 +1354,44 @@ function nextQuestion() {
 }
 
 function showResult() {
+    const gameEndTimeMs = Date.now();
+    const elapsedSeconds = Math.max(0, (gameEndTimeMs - gameStartTimeMs) / 1000);
+    const averageSeconds = totalQuestions > 0 ? elapsedSeconds / totalQuestions : 0;
+    const completedAt = new Date(gameEndTimeMs);
+    const dateText =
+        completedAt.getFullYear() + "年" +
+        (completedAt.getMonth() + 1) + "月" +
+        completedAt.getDate() + "日";
+
     $("game").classList.add("hidden");
     $("result").classList.remove("hidden");
 
-    $("resultScore").textContent = correctCount + " / " + totalQuestions + " 問 正解";
+    $("resultScore").textContent = totalQuestions + "問中 " + correctCount + "問正解";
+    $("resultDate").textContent = dateText;
+    $("resultTime").textContent =
+        elapsedSeconds.toFixed(2) + "秒で " + totalQuestions + "問中" + correctCount + "問正解";
+    $("resultAverage").textContent =
+        "平均 1問 " + averageSeconds.toFixed(2) + "秒";
+
+    const showTime = $("showTimeOption").checked;
+    $("resultTime").classList.toggle("hidden", !showTime);
+    $("resultAverage").classList.toggle("hidden", !showTime);
 
     const rate = totalQuestions > 0 ? correctCount / totalQuestions : 0;
     let message = "もう一度挑戦してみよう！";
+
+    $("result").classList.remove("perfect");
+    $("perfectCelebration").classList.add("hidden");
+    $("perfectCelebration").textContent = "";
+    $("resultHeading").textContent = "🎉 おつかれさま！";
+
     if (rate === 1) {
-        message = "全問正解！ よくできました！";
+        $("result").classList.add("perfect");
+        $("resultHeading").textContent = "🌟 パーフェクト！ 🌟";
+        $("perfectCelebration").textContent =
+            "🎉🎊 全問正解！ 🎊🎉\nすごい！ぜんぶ正解できました！";
+        $("perfectCelebration").classList.remove("hidden");
+        message = "この調子！ とてもよくできました！";
     } else if (rate >= 0.8) {
         message = "あと少しで全問正解！";
     } else if (rate >= 0.5) {
@@ -1216,13 +1405,18 @@ function resetGameState() {
     correctCount = 0;
     userAnswer = "";
     answered = false;
-    makeTenQuestions = [];
+    targetQuestions = [];
+    gameStartTimeMs = 0;
 
     $("answer").textContent = "";
     $("message").textContent = "";
     $("message").className = "message";
     $("nextButton").classList.add("hidden");
     $("actionRow").classList.remove("show-next");
+    $("result").classList.remove("perfect");
+    $("perfectCelebration").classList.add("hidden");
+    $("resultTime").classList.remove("hidden");
+    $("resultAverage").classList.remove("hidden");
 }
 
 function backToSettings() {
