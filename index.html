@@ -1091,6 +1091,7 @@ let answered = false;
 let targetQuestions = [];
 let targetNumber = 10;
 let gameStartTimeMs = 0;
+let targetBlankOnLeft = false;
 
 /* ==================================================
    共通処理
@@ -1249,7 +1250,8 @@ function makeQuestion() {
         case "makeTarget":
             number1 = targetQuestions[currentQuestion - 1];
             number2 = targetNumber - number1;
-            correctAnswer = number2;
+            targetBlankOnLeft = Math.random() < 0.5;
+            correctAnswer = targetBlankOnLeft ? number1 : number2;
             break;
 
         default:
@@ -1261,8 +1263,16 @@ function makeQuestion() {
 
     if (selectedOperation === "makeTarget") {
         $("answer").classList.add("hidden");
-        $("question").innerHTML =
-            number1 + " ＋ <span id=\"inlineAnswer\" class=\"inline-blank\">?</span> ＝ " + targetNumber;
+
+        if (targetBlankOnLeft) {
+            $("question").innerHTML =
+                "<span id=\"inlineAnswer\" class=\"inline-blank\">?</span> ＋ " +
+                number2 + " ＝ " + targetNumber;
+        } else {
+            $("question").innerHTML =
+                number1 + " ＋ <span id=\"inlineAnswer\" class=\"inline-blank\">?</span> ＝ " +
+                targetNumber;
+        }
     } else {
         $("answer").classList.remove("hidden");
         const displayOperator = selectedOperation === "-" ? "−" : selectedOperation;
