@@ -159,18 +159,27 @@ h1 {
     font-weight: normal;
 }
 
-.inline-blank {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 1.35em;
-    height: 1.35em;
+ .inline-blank {
+    display: inline-block;
+    min-width: 1.05em;
     padding: 0 0.08em;
     margin: 0 0.08em;
-    border: 0.065em solid #555;
+    border: 0.055em solid #555;
     border-radius: 0.08em;
-    vertical-align: 0.06em;
-    line-height: 1;
+    box-sizing: border-box;
+
+    /*
+       周囲の数字や記号と同じベースラインに合わせる。
+       内部の見えない「？」を基準にすることで，
+       入力前後で高さが変わらない。
+    */
+    vertical-align: baseline;
+    text-align: center;
+    line-height: 1em;
+}
+
+.blank-placeholder {
+    visibility: hidden;
 }
   
   
@@ -1266,11 +1275,11 @@ function makeQuestion() {
 
         if (targetBlankOnLeft) {
             $("question").innerHTML =
-                "<span id=\"inlineAnswer\" class=\"inline-blank\"></span> ＋ " +
+                "<span id=\"inlineAnswer\" class=\"inline-blank\"><span class=\"blank-placeholder\">?</span></span> ＋ " +
                 number2 + " ＝ " + targetNumber;
         } else {
             $("question").innerHTML =
-                number1 + " ＋ <span id=\"inlineAnswer\" class=\"inline-blank\"></span> ＝ " +
+                number1 + " ＋ <span id=\"inlineAnswer\" class=\"inline-blank\"><span class=\"blank-placeholder\">?</span></span> ＝ " +
                 targetNumber;
         }
     } else {
@@ -1287,7 +1296,11 @@ function updateAnswerDisplay() {
     if (selectedOperation === "makeTarget") {
         const inlineAnswer = $("inlineAnswer");
         if (inlineAnswer) {
-            inlineAnswer.textContent = userAnswer;
+            if (userAnswer === "") {
+                inlineAnswer.innerHTML = '<span class="blank-placeholder">?</span>';
+            } else {
+                inlineAnswer.textContent = userAnswer;
+            }
         }
     } else {
         $("answer").textContent = userAnswer;
